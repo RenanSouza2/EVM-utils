@@ -1,4 +1,4 @@
-export const mnemonics = {
+export const opcodes = {
     "STOP"	        : "00",
     "ADD"	        : "01",
     "MUL"	        : "02",

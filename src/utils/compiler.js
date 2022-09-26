@@ -1,12 +1,13 @@
 'use strict'
 
-import { mnemonics } from './mnemonics.js';
+import { deployFunction } from './deploy.js';
+import { opcodes } from './opcodes.js';
 
-export function compile(mnemonic) {
-    const tokens = mnemonic.split(' ');
+export function compile(mnemonics) {
+    const tokens = mnemonics.split(' ');
     const compiled = tokens.map(token => {
         if(token[0] == '0') return token.substring(2);
-        const opcode = mnemonics[token];
+        const opcode = opcodes[token];
         if(opcode == undefined) throw new Error(`Uknown opcode: ${token}`);
         return opcode;    
     });
@@ -14,8 +15,8 @@ export function compile(mnemonic) {
 }
 
 
-export function precompile(mnemonic) {
-    const tokens = mnemonic.split(' ');
+export function precompile(asm) {
+    const tokens = asm.split(' ');
 
     const sizes = tokens.map(token => {
         switch(token[0]) {
@@ -44,7 +45,6 @@ export function precompile(mnemonic) {
             switch(token[0]) {
                 case '<':
                 const ref = token.substring(1);
-
                 const label = labels.filter(({ token }) => token == ref);
                 if(label.length == 0) throw new Error(`Label ${label} not found`);
                 if(label.length  > 1) throw new Error(`Label ${label} not unique`);
@@ -56,4 +56,12 @@ export function precompile(mnemonic) {
         });
 
     return res.reduce((a, b) => a + ' ' + b);
+}
+
+export function toolchain(asm) {
+    const precompiled = precompile(asm);
+    console.log('mnemonics : ', precompiled);
+
+    const bytecode = compile(precompiled);
+    return deployFunction(bytecode);
 }
