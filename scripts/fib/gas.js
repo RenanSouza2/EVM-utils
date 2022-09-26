@@ -2,8 +2,8 @@
 
 import { BigNumber } from "ethers";
 import { fibAt } from "../../src/contracts/Fib.js";
-import { toolchain } from "../../src/utils/compiler.js"
-import { versions } from "./codes.js"
+import { precompile, toolchain } from "../../src/utils/compiler.js"
+import { versions, version_1 } from "./codes.js"
 
 const address_1 = await toolchain(versions[0]);
 const fib_1 =  fibAt(address_1);

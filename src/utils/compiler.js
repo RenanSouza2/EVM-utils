@@ -30,25 +30,24 @@ export function precompile(asm) {
         .map((token, index) => {return { token, index }})
         .filter(({ token }) => token[0] == '>')
         .map(({ token, index }) => {
-            const offset = sizes
+            const offsetNum = sizes
                 .slice(0, index)
                 .reduce((a, b) => a + b);
-
-            return {
-                label: token.substring(1),
-                offset: '0x'.concat(offset.toString(16).padStart(4, '0'))
-            }
-        });
-        
+            
+            const obj = {};
+            obj[token.substring(1)] = '0x'.concat(offsetNum.toString(16).padStart(4, '0'));
+            return obj;
+        })
+        .reduce((a, b) => {return {...a, ...b}});
+    
     const res = tokens
         .map(token => {
             switch(token[0]) {
                 case '<':
                 const ref = token.substring(1);
-                const label = labels.filter(({ label }) => label == ref);
-                if(label.length == 0) throw new Error(`Label ${label} not found`);
-                if(label.length  > 1) throw new Error(`Label ${label} not unique`);
-                return label[0].offset;
+                const label = labels[ref];
+                if(label == undefined) throw new Error('Unknown label : ', label);
+                return label;
 
                 case '>': return 'JUMPDEST'
                 default : return token;
