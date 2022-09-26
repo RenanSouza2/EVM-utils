@@ -12,6 +12,7 @@ export async function deployBytecode(bytecode) {
 
     const code = await provider.getCode(contract);
     console.log('deployed code    : ', code);
+    console.log();
 
     return contract;
 }

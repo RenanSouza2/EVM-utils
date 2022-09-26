@@ -35,7 +35,7 @@ export function precompile(asm) {
                 .reduce((a, b) => a + b);
 
             return {
-                token: token.substring(1),
+                label: token.substring(1),
                 offset: '0x'.concat(offset.toString(16).padStart(4, '0'))
             }
         });
@@ -45,7 +45,7 @@ export function precompile(asm) {
             switch(token[0]) {
                 case '<':
                 const ref = token.substring(1);
-                const label = labels.filter(({ token }) => token == ref);
+                const label = labels.filter(({ label }) => label == ref);
                 if(label.length == 0) throw new Error(`Label ${label} not found`);
                 if(label.length  > 1) throw new Error(`Label ${label} not unique`);
                 return label[0].offset;

@@ -1,6 +1,6 @@
 'use strict'
 
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { provider, signer } from './provider.js';
 
 const abi = ethers.utils.defaultAbiCoder;
@@ -11,7 +11,8 @@ export const uint256 = {
     },
 
     decode : function (bytes) {
-        return abi.decode([ "uint256" ], bytes);
+        const res = abi.decode([ "uint256" ], bytes).toString();
+        return BigNumber.from(res);
     }
 };
 
@@ -32,7 +33,6 @@ export function contractAt(address) {
                 data: bytes
             }
 
-            console.log();
             const { hash: txHash} = await signer.sendTransaction(tx);
             const receipt = await provider.getTransactionReceipt(txHash);
             return receipt.gasUsed.toNumber();
