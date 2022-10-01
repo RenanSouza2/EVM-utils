@@ -131,6 +131,7 @@ export const opcodes = {
     "CALLCODE"	    : "f2",
     "RETURN"	    : "f3",
     "DELEGATECALL"	: "f4",
-    "INVALID"	    : "fe",
-    "SELFDESTRUCT"	: "ff"	
+    "REVERT"        : "FD",
+    "INVALID"	    : "FE",
+    "SELFDESTRUCT"	: "FF"	
 }

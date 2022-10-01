@@ -2,7 +2,7 @@
 
 import { contractAt, uint256 } from "../utils/interaction.js";
 
-export function fibAt(address) {
+export function Fib(address) {
     const contract = contractAt(address);
 
     return {

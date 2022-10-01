@@ -3,32 +3,44 @@
 import { deployFunction } from './deploy.js';
 import { opcodes } from './opcodes.js';
 
-export function compile(mnemonics) {
-    const tokens = mnemonics.split(' ');
-    const compiled = tokens.map(token => {
-        if(token[0] == '0') return token.substring(2);
-        const opcode = opcodes[token];
-        if(opcode == undefined) throw new Error(`Uknown opcode: ${token}`);
-        return opcode;    
-    });
-    return '0x'.concat(compiled.reduce((a, b) => a+b));
+
+
+function computeStrings(input) {
+    return input.split('[')
+        .map((snippet, index) => {
+            if(index == 0) return snippet;
+
+            const [ string, snippet_next ] = snippet.split(']');
+
+            const len = string.length;
+            const len_hex = len.toString(16).padStart(2, '0');
+            const string_hex = string
+                .split('')
+                .map(
+                    char => char
+                        .charCodeAt(0)
+                        .toString(16)
+                        .padStart(2, '0')
+                ).reduce((a, b) => a + b);
+
+            return '0x' + len_hex + ' 0x' + string_hex + snippet_next
+        })
+        .reduce((a, b) => a + b);
 }
 
-
-export function precompile(asm) {
-    const tokens = asm.split(' ');
-
+function computeLabels(tokens) {
     const sizes = tokens.map(token => {
         switch(token[0]) {
             case '<': return 2;
+            case '|': return 0;
             case '0': return token.length/2 - 1;
             default : return 1;
         }
     });
     
-    const labels = tokens
+    return tokens
         .map((token, index) => {return { token, index }})
-        .filter(({ token }) => token[0] == '>')
+        .filter(({ token }) => token[0] == '>' || token[0] == '|')
         .map(({ token, index }) => {
             const offsetNum = sizes
                 .slice(0, index)
@@ -39,28 +51,57 @@ export function precompile(asm) {
             return obj;
         })
         .reduce((a, b) => {return {...a, ...b}});
-    
-    const res = tokens
+}
+
+function replaceReferences(tokens, labels) {
+    return tokens
         .map(token => {
             switch(token[0]) {
                 case '<':
                 const ref = token.substring(1);
                 const label = labels[ref];
-                if(label == undefined) throw new Error('Unknown label : ', label);
+                if(label == undefined) throw new Error(`Unknown label : ${ref}`);
                 return label;
 
-                case '>': return 'JUMPDEST'
+                case '|': return '';
+                case '>': return 'JUMPDEST';
                 default : return token;
             }
-        });
-
-    return res.reduce((a, b) => a + ' ' + b);
+        })
+        .filter(token => token.length > 0)
+        .reduce((a, b) => a + ' ' + b);
 }
 
-export function toolchain(asm) {
+function computeAddresses(code) {
+    const tokens = code.split(' ');
+    const labels = computeLabels(tokens);
+    return replaceReferences(tokens, labels);
+}
+
+
+
+export function compile(mnemonics) {
+    const tokens = mnemonics.split(' ');
+    const compiled = tokens.map(token => {
+        if(token[0] == '0') return token.substring(2);
+        const opcode = opcodes[token];
+        if(opcode == undefined) throw new Error(`Uknown opcode: ${token}`);
+        return opcode;    
+    });
+    return '0x'.concat(compiled.reduce((a, b) => a + b));
+}
+
+export function precompile(asm) {
+    
+    const code = computeStrings(asm);
+    return computeAddresses(code); 
+}
+
+export async function toolchain(asm) {
     const precompiled = precompile(asm);
     console.log('mnemonics : ', precompiled);
 
     const bytecode = compile(precompiled);
-    return deployFunction(bytecode);
+    const address = await deployFunction(bytecode);
+    return contractAt(address)
 }
