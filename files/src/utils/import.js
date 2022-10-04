@@ -4,7 +4,8 @@ import * as fs from 'fs';
 import * as readline from 'node:readline';
 
 export async function Import(file) {
-    const fileStream = fs.createReadStream(file);
+    const path = '/home/renan-pc/docs/javascript/EVM-utils/files/codes/' + file;
+    const fileStream = fs.createReadStream(path);
 
     const rl = readline.createInterface({
         input: fileStream,

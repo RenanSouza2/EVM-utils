@@ -1,9 +1,12 @@
 'use strict'
 
-import { contractAt, uint256 } from "../utils/interaction.js";
+import { uint256 } from '../utils/encoder.js';
+import { instance } from '../utils/instance.js';
+import { toolchain } from "../utils/toolchain.js"
 
-export function Fib(address) {
-    const contract = contractAt(address);
+
+export async function Fib(code) {
+    const contract = await toolchain(code);
 
     return {
         call : async function (num) {
@@ -15,6 +18,8 @@ export function Fib(address) {
         gas : async function (num) {
             const bytesIn = uint256.encode(num);
             return contract.gas(bytesIn);
-        }
+        },
+
+        address: contract.address
     }
 }

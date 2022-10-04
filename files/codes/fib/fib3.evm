@@ -1,0 +1,42 @@
+push1 0x00
+calldataload
+push1 0x01
+push1 0x01
+
+>loop
+push1 0x02
+dup4
+lt
+push2 <out_loop
+jumpi
+
+swap1
+dup2
+add
+swap1
+dup2
+add
+
+push1 0x02
+dup4
+sub
+swap3
+pop
+push2 <loop
+jump
+
+>out_loop
+dup3
+iszero
+iszero
+push2 <return_value
+jumpi
+
+pop
+
+>return_value
+push1 0x00
+mstore
+push1 0x20
+push1 0x00
+return

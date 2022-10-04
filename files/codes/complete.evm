@@ -1,0 +1,71 @@
+push1 0x00
+calldataload
+push1 0xE0
+shr
+
+dup1
+push4 0x3fa4f245
+eq
+push2 <value
+jumpi
+
+dup1
+push4 0xc15bae84
+eq
+push2 <str
+jumpi
+
+pop
+push2 <fallback_string
+push2 <revert
+jump
+
+>value
+pop
+push2 0xabcd
+push1 0x00
+mstore
+push1 0x20
+push1 0x00
+return
+
+>str
+pop
+push2 <str_1
+push2 <return_string
+push2 <load_string
+jump
+>str_1
+push1 0x00
+return
+
+>revert
+push2 <fallback_1
+swap1
+push2 <load_string
+jump
+>fallback_1
+push1 0x00
+revert
+
+>load_string
+dup1
+push1 0x01
+swap1
+push1 0x1f
+codecopy
+push1 0x00
+mload
+
+push1 0x01
+add
+dup1
+swap2
+push1 0x00
+codecopy
+
+swap1
+jump
+
+|fallback_string [No fallback]
+|return_string [Return this string]

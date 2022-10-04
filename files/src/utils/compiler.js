@@ -1,9 +1,6 @@
 'use strict'
 
-import { deployFunction } from './deploy.js';
 import { opcodes } from './opcodes.js';
-
-
 
 function computeStrings(input) {
     return input.split('[')
@@ -65,7 +62,8 @@ function replaceReferences(tokens, labels) {
 
                 case '|': return '';
                 case '>': return 'JUMPDEST';
-                default : return token;
+                case '0': return '0x' + token.substring(2).toUpperCase();
+                default : return token.toUpperCase();
             }
         })
         .filter(token => token.length > 0)
@@ -84,6 +82,7 @@ export function compile(mnemonics) {
     const tokens = mnemonics.split(' ');
     const compiled = tokens.map(token => {
         if(token[0] == '0') return token.substring(2);
+
         const opcode = opcodes[token];
         if(opcode == undefined) throw new Error(`Uknown opcode: ${token}`);
         return opcode;    
@@ -95,13 +94,4 @@ export function precompile(asm) {
     
     const code = computeStrings(asm);
     return computeAddresses(code); 
-}
-
-export async function toolchain(asm) {
-    const precompiled = precompile(asm);
-    console.log('mnemonics : ', precompiled);
-
-    const bytecode = compile(precompiled);
-    const address = await deployFunction(bytecode);
-    return contractAt(address)
 }

@@ -1,9 +1,9 @@
 'use strict'
 
-import { string } from './coder.js';
+import { string } from './encoder.js';
 import { provider, signer } from './provider.js';
 
-export function Contract(address) {
+export function instance(address) {
     return {
         call : async function (bytes) {
             const tx = {
@@ -16,16 +16,16 @@ export function Contract(address) {
             } catch(err) {
                 const response = err.error.error.data;
                 console.log('ERROR:', string.decode(response));
-                return "ERROR";
             }
         },
 
+        
         gas : async function (bytes) {
             const tx = {
                 to: address,
                 data: bytes
             }
-
+            
             const { hash: txHash } = await signer.sendTransaction(tx);
             const receipt = await provider.getTransactionReceipt(txHash);
             return receipt.gasUsed.toNumber();
@@ -38,6 +38,8 @@ export function Contract(address) {
             }
 
             return signer.sendTransaction(tx);
-        }
+        },
+
+        address: address
     }
 }

@@ -3,7 +3,7 @@
 import { signer, provider } from "./provider.js";
 
 export const deploy = {
-    bytecode: async function deployBytecode(bytecode) {
+    bytecode: async function (bytecode) {
         console.log();
         
         const tx = { data: bytecode }
@@ -18,14 +18,13 @@ export const deploy = {
         return contract;
     },
 
-    function: function deployFunction(functionBytecode) {
+    function: function (functionBytecode) {
         const code = functionBytecode.substring(2);
     
         const len = code.length / 2;
         const lenStr = len.toString(16).padStart(4, '0');
     
         const bytecode = '0x61' + lenStr + '80600C6000396000F3' + code;
-        console.log(bytecode);
-        return deployBytecode(bytecode);
+        return this.bytecode(bytecode);
     }
 }
