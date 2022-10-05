@@ -1,12 +1,11 @@
 'use strict'
 
 import { uint256 } from '../utils/encoder.js';
-import { instance } from '../utils/instance.js';
 import { toolchain } from "../utils/toolchain.js"
 
 
 export async function Fib(code) {
-    const contract = await toolchain(code);
+    const contract = await toolchain('fib/' + code);
 
     return {
         call : async function (num) {

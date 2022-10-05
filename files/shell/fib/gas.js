@@ -1,8 +1,7 @@
 'use strict'
 
 import { Fib } from "../../src/contracts/Fib.js";
-
-const versions = [ 'fib/fib1.evm', 'fib/fib2.evm', 'fib/fib3.evm' ];
+import { versions } from './versions.js';
 
 const fib = [];
 
@@ -10,10 +9,14 @@ for(let i=0; i<versions.length; i++) {
     fib.push(await Fib(versions[i]));
 }
 
-for(let i=0; i<257; i++) {
+for(let i=0; i<360; i++) {
     const gas = [];
     for(let j=0; j<fib.length; j++)
         gas.push((await fib[j].gas(i)) - 21000);
     
-    console.log(i, ...gas.map(item => ',' + item));
+    const format = gas
+        .map(item => [',', item])
+        .reduce((a, b) => [...a, ...b]);
+
+    console.log(i, ...format);
 }
