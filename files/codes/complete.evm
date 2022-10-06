@@ -1,20 +1,25 @@
+# get the selector
 push1 0x00
 calldataload
 push1 0xE0
 shr
 
+# check for value() signature
 dup1
 push4 0x3fa4f245
 eq
 push2 <value
 jumpi
 
+
+#check for str() signature
 dup1
 push4 0xc15bae84
 eq
 push2 <str
 jumpi
 
+# revert no fallback
 pop
 push2 <fallback_string
 push2 <revert
@@ -40,11 +45,11 @@ push1 0x00
 return
 
 >revert
-push2 <fallback_1
+push2 <revert_1
 swap1
 push2 <load_string
 jump
->fallback_1
+>revert_1
 push1 0x00
 revert
 
